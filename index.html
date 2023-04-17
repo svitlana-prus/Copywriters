@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<style>
+body{
+    background-color: antiquewhite;
+}
+div{
+    box-sizing: border-box;
+    display: inline-grid;
+    border: 1px solid black;
+    width: 40%;
+    margin: 5px;
+    padding: 10px;
+}
+
+table td{
+    border: 1px solid black;
+    margin: 0px;
+}
+
+h4, h3{
+    text-align: center;
+}
+
+    </style>
+
+    <meta charset="UTF-8">
+    <script src="script.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+
+<div id="forName"></div>
+
+   <div id="tab"></div>
+
+   <!-- <p id="forBtn"></p> -->
+
+   <script>
+// 1. Реализовать веб-страницу «Каталог копирайтеров».​
+// При открытии страницы необходимо отображать имена всех доступных копирайтеров. Данные получать с помощью AJAXзапроса с ресурса JSONPlaceholder. ​
+// Алгоритм действий для получения списка пользователей:​
+// Отправить GET-запрос по адресу: https://jsonplaceholder.typicode.com/users​
+// 2. Получить ответ в формате JSON. Ответом будет массив из 10-ти пользователей.​
+// 3. Распарсить данные из ответа и записать их в коллекцию объектов вашего типа данных User.​
+// 4. Сформировать HTML-элементы и добавить их в DOM.​
+//При выборе копирайтера, ниже отображается его подробная информация и кнопка Show posts. ​
+//Для того чтобы получить подробную информацию, необходимо отправить запрос по тому же адресу: https://jsonplaceholder.typicode.com/users, но добавив параметр id с необходимым значением. ​
+//В итоге адрес будет выглядеть так: https://jsonplaceholder.typicode.com/users?id=2​
+// или сокращенный вариант: https://jsonplaceholder.typicode.com/users/2​
+//При нажатии на кнопку Show posts необходимо вывести все посты выбранного копирайтера. 
+//Список постов можно получить, отправив запрос по адресу: https://jsonplaceholder.typicode.com/posts  с параметром userId.​
+
+let forName=document.getElementById('forName');
+let tab=document.getElementById('tab')
+
+let request = new XMLHttpRequest();
+request.open('GET', 'https://jsonplaceholder.typicode.com/users');
+request.responseType = 'json';
+request.onload = function() {
+    if (request.status == 200) {
+        console.log(request.response);
+        getInfo(request.response);
+    }
+}
+request.send();
+//для заголовка 1
+let h3=document.createElement('h3'); 
+document.body.append(h3);
+h3.innerHTML='All users';
+
+// 3. Распарсить данные из ответа и записать их в коллекцию объектов вашего типа данных User.​
+function getInfo(data) {
+    for (let i = 0; i < data.length; i++) {
+        let div = document.createElement('div');
+        div.classList.add('nameStyle');
+        document.body.append(div);
+        div.innerHTML = data[i].name; //прізвище та імя користувача
+
+//При выборе копирайтера, ниже отображается его подробная информация ​
+        div.addEventListener('click', () => {
+      document.querySelectorAll("table").forEach((e) => e.remove()); ////видаляє таблицю, якщо вона є.
+      document.querySelectorAll("button").forEach((e) => e.remove()); ////видаляє button.
+      document.querySelectorAll("h4").forEach((e) => e.remove()); ////видаляє загаловок.
+      document.querySelectorAll(".myStyle").forEach((e) => e.remove()); ////видаляе posts, якщо він є.
+
+            //для заголовка 2
+            let h4=document.createElement('h4'); 
+            document.body.append(h4);
+            h4.innerHTML='User info:';
+
+            let table = document.createElement('table');
+            for (let prop in data[i]) {
+                let tr = document.createElement('tr');
+                table.append(tr);
+                let td1 = document.createElement('td');
+                let td2 = document.createElement('td');
+                td1.innerHTML = prop; //імя, прізвище, адреса і тд (ключ)
+                td2.innerHTML = data[i][prop]; //значення імені прізвища адреси (значення)
+                
+                //розкрити обєкт в обєкті
+                if(prop=='address'){
+                    td2.innerHTML=`${data[i].address.city}, ${data[i].address.street}`;
+                } else if(prop=='company'){
+                    td2.innerHTML=`${data[i].company.name}`;
+                }
+                tr.append(td1);
+                tr.append(td2);
+            }
+            document.body.append(table);
+            
+//знаходимо таблицю та значення id (другий стовбчик таблиці) для виводу всіх постів вибраного копірайтера
+        let table1=document.querySelector('table');
+        let td=document.querySelectorAll('td')[1];
+        let cont=td.textContent; //номер копірайтера
+
+        console.log(table1);
+        console.log(td);
+        console.log(cont);
+            
+        // и кнопка Show posts.
+        let button = document.createElement('button');
+        button.appendChild(document.createTextNode("Show posts"));
+        button.classList.add('myClass');
+        document.body.append(button);
+
+//При нажатии на кнопку Show posts необходимо вывести все посты выбранного копирайтера. 
+        button.addEventListener('click',()=>{
+        // загаловок user's posts
+        let h4=document.createElement('h4'); 
+        document.body.append(h4);
+        h4.innerHTML="User's posts:";
+
+// Список постов можно получить, отправив запрос по адресу: https://jsonplaceholder.typicode.com/posts  с параметром userId.​
+        let requestTwo = new XMLHttpRequest();
+        requestTwo.open('GET', 'https://jsonplaceholder.typicode.com/posts');
+        requestTwo.responseType = 'json';
+        requestTwo.onload = function() {
+            if (requestTwo.status == 200) {
+                console.log(requestTwo.response);
+                    getPost(requestTwo.response);
+            }
+        }
+        requestTwo.send();
+
+        //функція для запису всіх постів вибраного копірайтера у таблицю
+        function getPost(post){
+            for (let j = 0; j < post.length; j++) {
+                 if(post[j].userId==cont){
+                    let h4=document.createElement('h4');
+                    h4.innerHTML=post[j].title;
+                    console.log(post[j].title)
+                    let div = document.createElement('div');
+                    div.classList.add('myStyle');
+                    div.append(h4);
+                    
+                    let p=document.createElement('p');
+                    p.innerHTML=post[j].body;
+                    div.append(p)
+                    document.body.append(div);
+                 }                     
+                   }
+                }
+            })                
+       }); 
+    }
+}
+
+    </script>
+
+
+</body>
+</html>
